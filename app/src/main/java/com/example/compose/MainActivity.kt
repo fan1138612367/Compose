@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,12 +35,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ComposeTheme(false) {
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Conversation(message = SampleData.conversationSample)
-                }
+                MainScreen()
             }
         }
     }
@@ -121,7 +116,7 @@ object SampleData {
 }
 
 @Composable
-fun MessageCard(msg: Message, i: Int) {
+private fun MessageCard(msg: Message, i: Int) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     val surfaceColor: Color by animateColorAsState(
         targetValue = if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
@@ -131,7 +126,7 @@ fun MessageCard(msg: Message, i: Int) {
     ) {
         Box(contentAlignment = Alignment.Center) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = painterResource(id = R.mipmap.ic_launcher_foreground),
                 contentDescription = null,
                 modifier = Modifier
                     .shadow(8.dp, RoundedCornerShape(16.dp))
@@ -188,7 +183,7 @@ fun MessageCard(msg: Message, i: Int) {
 }
 
 @Composable
-fun Conversation(message: List<Message>) {
+private fun Conversation(message: List<Message>) {
     LazyColumn {
         itemsIndexed(message) { i: Int, message: Message ->
             MessageCard(msg = message, i = i)
@@ -196,8 +191,21 @@ fun Conversation(message: List<Message>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainScreen() {
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = {}) {
+                Icon(Icons.Filled.Add, "添加")
+            }
+        }) {
+        Conversation(message = SampleData.conversationSample)
+    }
+}
+
 @Preview(
-    showBackground = true,
+    showBackground = false,
     name = "Light Mode"
 )
 @Preview(
@@ -206,8 +214,8 @@ fun Conversation(message: List<Message>) {
     name = "Dark Mode"
 )
 @Composable
-fun DefaultPreview() {
+private fun DefaultPreview() {
     ComposeTheme {
-        Conversation(message = SampleData.conversationSample)
+        MainScreen()
     }
 }

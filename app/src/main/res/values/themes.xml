@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Compose" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Compose" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@android:style/Theme.Material.Light.NoActionBar</item>
+        <item name="windowSplashScreenBackground">@android:color/background_light</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+    </style>
 </resources>
