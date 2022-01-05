@@ -1,6 +1,6 @@
 package com.example.compose
 
-import android.content.res.Configuration
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +25,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.compose.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -33,7 +35,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             ComposeTheme(false) {
                 // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     Conversation(message = SampleData.conversationSample)
                 }
             }
@@ -117,9 +122,9 @@ object SampleData {
 
 @Composable
 fun MessageCard(msg: Message, i: Int) {
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
     val surfaceColor: Color by animateColorAsState(
-        targetValue = if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface
+        targetValue = if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
     )
     Row(
         modifier = Modifier.padding(8.dp)
@@ -130,18 +135,26 @@ fun MessageCard(msg: Message, i: Int) {
                 contentDescription = null,
                 modifier = Modifier
                     .shadow(8.dp, RoundedCornerShape(16.dp))
-                    .border(6.dp, MaterialTheme.colors.primary, shape = RoundedCornerShape(16.dp))
+                    .border(
+                        6.dp,
+                        MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(16.dp)
+                    )
                     .border(
                         12.dp,
-                        MaterialTheme.colors.secondary,
+                        MaterialTheme.colorScheme.primaryContainer,
                         shape = RoundedCornerShape(22.dp)
                     )
-                    .border(18.dp, MaterialTheme.colors.error, shape = RoundedCornerShape(28.dp)),
+                    .border(
+                        18.dp,
+                        MaterialTheme.colorScheme.inversePrimary,
+                        shape = RoundedCornerShape(28.dp)
+                    ),
                 contentScale = ContentScale.Crop
             )
             Text(
                 text = "${msg.author} $i",
-                style = MaterialTheme.typography.subtitle2,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.shadow(8.dp)
             )
         }
@@ -149,13 +162,14 @@ fun MessageCard(msg: Message, i: Int) {
         Column {
             Text(
                 text = "${msg.author} $isExpanded",
-                color = MaterialTheme.colors.secondaryVariant,
-                style = MaterialTheme.typography.subtitle2
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
             Surface(
-                shape = MaterialTheme.shapes.medium,
-                elevation = 1.dp,
+                shape = RoundedCornerShape(4.dp),
+                tonalElevation = 1.dp,
+                shadowElevation = 1.dp,
                 color = surfaceColor,
                 modifier = Modifier
                     .animateContentSize()
@@ -165,7 +179,7 @@ fun MessageCard(msg: Message, i: Int) {
                 Text(
                     text = msg.body,
                     Modifier.padding(4.dp),
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = if (isExpanded) Int.MAX_VALUE else 1
                 )
             }
@@ -188,7 +202,7 @@ fun Conversation(message: List<Message>) {
 )
 @Preview(
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    uiMode = UI_MODE_NIGHT_YES,
     name = "Dark Mode"
 )
 @Composable
