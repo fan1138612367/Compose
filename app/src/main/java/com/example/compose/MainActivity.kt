@@ -38,22 +38,24 @@ import com.example.compose.ui.theme.ComposeTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val splashScreen = installSplashScreen()
-        splashScreen.setOnExitAnimationListener { splashScreenView ->
-            val slideUp = ObjectAnimator.ofFloat(
-                splashScreenView.iconView,
-                View.TRANSLATION_Y,
-                0f,
-                -splashScreenView.view.height.toFloat()
-            )
-            slideUp.interpolator = AnticipateInterpolator()
-            slideUp.duration = 500L
-            slideUp.doOnEnd {
-                splashScreenView.remove()
-            }
-            Toast.makeText(this, "点击进入应用", Toast.LENGTH_SHORT).show()
-            splashScreenView.view.setOnClickListener {
-                slideUp.start()
+        installSplashScreen().apply {
+            setOnExitAnimationListener { splashScreen ->
+                ObjectAnimator.ofFloat(
+                    splashScreen.iconView,
+                    View.TRANSLATION_Y,
+                    0f,
+                    -splashScreen.view.height.toFloat()
+                ).apply {
+                    interpolator = AnticipateInterpolator()
+                    duration = 500L
+                    doOnEnd {
+                        splashScreen.remove()
+                    }
+                    Toast.makeText(this@MainActivity, "点击进入应用", Toast.LENGTH_SHORT).show()
+                    splashScreen.view.setOnClickListener {
+                        start()
+                    }
+                }
             }
         }
         setContent {
