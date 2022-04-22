@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,18 +20,22 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.compose.ui.theme.ComposeTheme
@@ -152,24 +157,27 @@ private fun MessageCard(msg: Message, i: Int) {
     ) {
         Box(contentAlignment = Alignment.Center) {
             Image(
-                painter = painterResource(id = R.mipmap.ic_launcher_foreground),
+                painter = painterResource(R.mipmap.ic_launcher_foreground),
                 contentDescription = null,
                 modifier = Modifier
-                    .shadow(8.dp, RoundedCornerShape(16.dp))
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(16.dp)
+                    )
                     .border(
                         6.dp,
                         MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(16.dp)
+                        RoundedCornerShape(16.dp)
                     )
                     .border(
                         12.dp,
                         MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(22.dp)
+                        RoundedCornerShape(22.dp)
                     )
                     .border(
                         18.dp,
                         MaterialTheme.colorScheme.inversePrimary,
-                        shape = RoundedCornerShape(28.dp)
+                        RoundedCornerShape(28.dp)
                     ),
                 contentScale = ContentScale.Crop
             )
@@ -195,11 +203,12 @@ private fun MessageCard(msg: Message, i: Int) {
                 modifier = Modifier
                     .animateContentSize()
                     .padding(1.dp)
-                    .clickable { isExpanded = !isExpanded }
             ) {
                 Text(
                     text = msg.body,
-                    Modifier.padding(4.dp),
+                    modifier = Modifier
+                        .clickable { isExpanded = !isExpanded }
+                        .padding(4.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = if (isExpanded) Int.MAX_VALUE else 1
                 )
@@ -212,7 +221,7 @@ private fun MessageCard(msg: Message, i: Int) {
 private fun Conversation(message: List<Message>) {
     LazyColumn {
         itemsIndexed(message) { i: Int, message: Message ->
-            MessageCard(msg = message, i = i)
+            MessageCard(message, i)
         }
     }
 }
@@ -220,13 +229,43 @@ private fun Conversation(message: List<Message>) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen() {
+    var inputting by rememberSaveable { mutableStateOf(false) }
+    val animatedFabScale by animateFloatAsState(
+        if (inputting) 0f else 1f
+    )
+    val animatedInputScale by animateFloatAsState(
+        if (inputting) 1f else 0f
+    )
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = {}) {
+            FloatingActionButton(
+                onClick = {
+                    inputting = !inputting
+                },
+                modifier = Modifier.scale(animatedFabScale)
+            ) {
                 Icon(Icons.Filled.Add, "添加")
             }
         }) {
-        Conversation(message = SampleData.conversationSample)
+        Box(Modifier.fillMaxSize()) {
+            Conversation(SampleData.conversationSample)
+            Row(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .scale(animatedInputScale)
+            ) {
+                TextField(value = "", onValueChange = {}, modifier = Modifier.weight(1f))
+                FilledTonalIconButton(
+                    onClick = {
+                        inputting = !inputting
+                    }
+                ) {
+                    Icon(Icons.Filled.Send, "确认")
+                }
+            }
+        }
     }
 }
 
